@@ -42,7 +42,7 @@ class Node {
 			$neighbours_list = $neighbours_list. ", (id : "	.$neighbour[0]->getId()." , poids de l'arête : ".$neighbour[1].")";
 		}
 		$community = "</br>Communauté : ".(isset($this->community) ? $this->community->getId() : "Pas de communauté")."</br></br>";
-		return "Noeud : ".$this->id."</br>Valeur : ".$this->value."</br>Voisins : ".$neighbours_list.$community;
+		return "Noeud : ".$this->id."</br>Valeur : ".$this->value."</br>Voisins : ".$neighbours_list."</br>Poids sortant : ".$this->outward_weight.$community;
 	}
 	
 	public function getId() {
@@ -458,7 +458,6 @@ function algo($file_path) {
 		$graph->addCommunity()->addNode($node);
 	}
 	
-	print $graph;
 	$coocurrence = array();
 	
 	for($i = 0; $i < count($keywords);$i++) {
@@ -473,11 +472,14 @@ function algo($file_path) {
 				for($j = $i+1; $j < count($article->connected_keywords);$j++) {
 					if ($article->connected_keywords[$j]->word_title != "Politique") {
 						$coocurrence[$keywords[$article->connected_keywords[$i]->word_title]][$keywords[$article->connected_keywords[$j]->word_title]] += 1; 
+						$coocurrence[$keywords[$article->connected_keywords[$j]->word_title]][$keywords[$article->connected_keywords[$i]->word_title]] += 1; 
 					}
 				}
 			}
 		}
 	}
+	
+	print_r($coocurrence[$keywords['Automobile']]);
 	
 	for($i = 0; $i < count($keywords);$i++) {
 		for($j = $i+1; $j < count($keywords);$j++) {
@@ -486,7 +488,7 @@ function algo($file_path) {
 			}
 		}
 	}
-	
+	print $graph;
 	
 	$continue = true;
 	while($continue) {
@@ -498,9 +500,12 @@ function algo($file_path) {
 
 		//$graph = $graph->communitiesGraph();
 	}
-
+	foreach($graph->getCommunities() as $community) {
+		print("Communauté ".$community->getId()."</br>Poids entrant : ".$community->getSumInsideWeight()."</br>Poids sortant : ".$community->getSumOutwardWeight());
+	}
+	$graph = $graph->communitiesGraph();
+	$graph->findCommunities();
 	print $graph->communitiesGraph();
-
 	
 }
 
